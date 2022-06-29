@@ -1,19 +1,49 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <router-link to="/signup" v-show="!islogin">会員登録 |</router-link>
+    <router-link to="/signin" v-show="!islogin">ログイン</router-link>
+    <a href="#" @click="signout" v-show="islogin">ログアウト</a>
+    <v-app>
+      <v-container>
+        <router-view />
+      </v-container>
+    </v-app>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import { getAuth, signOut } from 'firebase/auth';
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
+  name: "app",
+  data() {
+    return {
+      islogin: false
+    }
+  },
+  updated: function() {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if(user) {
+      this.islogin = true;
+    }
+  },
+  methods: {
+    signout() {
+      const ans = confirm('ログアウトしますか?');
+      if(ans) {
+        const auth = getAuth();
+        signOut(auth).then(() => {
+          this.islogin = false;
+          alert("ログアウトしました");
+          this.$router.push("/signin");
+        }).catch(error => {
+          alert(error);
+        });
+      }
+    }
   }
-}
+};
 </script>
 
 <style>
